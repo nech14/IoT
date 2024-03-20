@@ -12,8 +12,7 @@ def connect_db(db):
     return conn, cursor
 
 
-def create_location_db(db=name_db):
-    error = None
+def create_location_db(db=name_db, error=None):
     if not os.path.exists(db):
         error = "Didn't find the database"
 
