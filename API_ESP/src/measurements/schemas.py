@@ -1,10 +1,11 @@
-# content of measurements/schemas.py
+
 from datetime import datetime
+from typing import Union
 from pydantic import BaseModel
 
 
 class TemperatureValue(BaseModel):
-    value: float 
+    device_id: int
     location: str
-    device_id: str
-    timestamp: datetime
+    value: float
+    timestamp: Union[datetime, None] = None

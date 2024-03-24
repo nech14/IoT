@@ -6,8 +6,8 @@ import os
 name_db = '../data/database.db'
 
 
-def connect_db(db):
-    conn = sqlite3.connect(name_db)
+def connect_db(db=name_db):
+    conn = sqlite3.connect(db)
     cursor = conn.cursor()
     return conn, cursor
 
@@ -21,34 +21,47 @@ def create_location_db(db=name_db, error=None):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS datas(
             id INTEGER PRIMARY KEY,
+            device_id INTEGER,
             location TEXT,
-            data REAL,
-            event_time TEXT,
-            event_timezone TEXT
+            value REAL,
+            timestamp TEXT
         )
     ''')
 
     if not error is None:
-        tz_local = get_localzone()
-        current_time_local = datetime.now(tz_local)
-        event_data = (error, -1, current_time_local.isoformat(), tz_local.tzname(current_time_local))
-        cursor.execute("INSERT INTO datas (location, data, event_time, event_timezone) VALUES (?, ?, ?, ?)",
+        event_data = (-1, error, -1, str(datetime.now()))
+        cursor.execute("INSERT INTO datas (device_id, location, value, timestamp) VALUES (?, ?, ?, ?)",
                        event_data)
         conn.commit()
         conn.close()
 
 
-def adding_data(location, data, db=name_db):
+def get_location_data(location, db=name_db):
     if not os.path.exists(db):
-        create_location_db()
+        create_location_db(db=db)
+
     conn, cursor = connect_db(db)
-    tz_local = get_localzone()
-    current_time_local = datetime.now(tz_local)
-    event_data = (location, data, current_time_local.isoformat(), tz_local.tzname(current_time_local))
-    cursor.execute("INSERT INTO datas (location, data, event_time, event_timezone) VALUES (?, ?, ?, ?)",
+
+    print(f"{location}")
+    cursor.execute(f'SELECT value FROM datas WHERE location == "{location}"')
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return rows
+
+
+def adding_data(device_id, location, data, timestamp=None, db=name_db):
+    if not os.path.exists(db):
+        create_location_db(db=db)
+    conn, cursor = connect_db(db)
+    if timestamp is None:
+        timestamp = datetime.now()
+    event_data = (device_id, location, data, str(timestamp))
+    cursor.execute("INSERT INTO datas (device_id, location, value, timestamp) VALUES (?, ?, ?, ?)",
                    event_data)
     conn.commit()
     conn.close()
 
-
-adding_data("home1", 120.142)
+#adding_data(1, "fdesfsd", -2)
