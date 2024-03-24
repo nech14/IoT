@@ -49,7 +49,7 @@ def get_location_data(location, db=name_db):
 
     conn.close()
 
-    return rows
+    return [row[0] for row in rows]
 
 
 def adding_data(device_id, location, data, timestamp=None, db=name_db):
@@ -65,3 +65,4 @@ def adding_data(device_id, location, data, timestamp=None, db=name_db):
     conn.close()
 
 #adding_data(1, "fdesfsd", -2)
+
